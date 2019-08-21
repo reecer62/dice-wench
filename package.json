@@ -1,0 +1,24 @@
+{
+  "name": "dnd-assistant",
+  "version": "0.1.0",
+  "description": "A bot that offers useful commands to run when playing D&D",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/reecer62/dnd-assistant.git"
+  },
+  "keywords": [
+    "bot",
+    "d&d",
+    "assistant"
+  ],
+  "author": "Reece Emero",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/reecer62/dnd-assistant/issues"
+  },
+  "homepage": "https://github.com/reecer62/dnd-assistant#readme"
+}
