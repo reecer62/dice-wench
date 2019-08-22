@@ -1,9 +1,9 @@
-const { execSync } = require('child_process');
+const { execSync } = require('child_process')
 
 function bullshit() {
-    let bs = execSync("./bullshit.py")
-    console.log("BS: " + bs)
-    return bs
+	const bs = execSync('./bullshit.py')
+	console.log('BS: ' + bs)
+	return bs
 }
 
 module.exports = bullshit
