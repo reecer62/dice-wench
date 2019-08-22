@@ -1,5 +1,6 @@
 const Discord = require('discord.js');
 const auth = require('./auth.json');
+const dice = require('./dice.js')
 
 const fs = require('fs');
 
@@ -13,6 +14,7 @@ function scanCommand(cmd) {
     let args = cmd.split(" ").slice(1).join(" ");
     return args.match(/(?:[^\s"]+|"[^"]*")+/g);
 }
+
 
 var macros = {}
 function readMacros() {
@@ -79,6 +81,18 @@ bot.on('message', msg => {
             } else {
                 undef(args[0])
             }
+        } else if(text.startsWith("roll",1)) {
+            let args = scanCommand(text)
+            let dstring = args.join(" ")
+            try {
+                let result = dice(dstring)
+                let out = result.sum + result.rolls.reduce((a,n) => a+n,0)
+                msg.channel.send(JSON.stringify(result))
+                msg.channel.send("You rolled " + out)
+            } catch(err) {
+                msg.channel.send("Error: " + err)
+            }
+
         }
     }
 	console.log(msg.channel.name)
