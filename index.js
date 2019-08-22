@@ -105,7 +105,7 @@ bot.on('message', msg => {
 		}
 		else if(text.startsWith('bullshit', 1)) {
 			const args = scanCommand(text)
-			const effect = bs()
+			const effect = bs('NLRMEv2.txt')
 			if(args != null && args.length > 0) {
 				if(args[0] == 'secret') {
 					msg.author.createDM().then((dm) => {
