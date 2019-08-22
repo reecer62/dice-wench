@@ -24,8 +24,7 @@ function scanCommand(cmd) {
 function parseCommand(text) {
 	if (text[0] === '!') {
 		return text.slice(1).split(/ +/)[0]
-	}
-	else {
+	} else {
 		return null
 	}
 }
@@ -43,8 +42,7 @@ bot.on('message', msg => {
 	case 'def':
 		if(args.length != 2) {
 			msg.channel.send('Macro definition requires exactly 2 arguments, found ' + args.length + '!')
-		}
-		else {
+		} else {
 			macro.addMacro(args[0], args[1], macros)
 		}
 		break
@@ -54,8 +52,7 @@ bot.on('message', msg => {
 	case 'undef':
 		if(args.length != 1) {
 			msg.channel.send('Undef requires exactly 1 argument, found ' + args.length + '!')
-		}
-		else {
+		} else {
 			macro.undef(args[0], macros)
 		}
 		break
@@ -65,8 +62,7 @@ bot.on('message', msg => {
 			const out = result.sum + result.rolls.reduce((a, n) => a + n, 0)
 			msg.channel.send(JSON.stringify(result))
 			msg.channel.send('You rolled ' + out)
-		}
-		catch(err) {
+		} catch(err) {
 			msg.channel.send('Error: ' + err)
 		}
 		break
@@ -78,8 +74,7 @@ bot.on('message', msg => {
 					dm.send('Effect: ' + effect)
 				})
 			}
-		}
-		else {
+		} else {
 			msg.channel.send('Effect: ' + effect)
 		}
 		break

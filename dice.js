@@ -28,8 +28,7 @@ function rollDice(dstring) {
 			const res = rollD(n, k)
 			console.log('res = ' + res)
 			roll.rolls = roll.rolls.concat(res)
-		}
-		else {
+		} else {
 			if(d != parseInt(d)) {
 				console.log('ERROR: d = ' + d)
 				throw 'bad dice expr'

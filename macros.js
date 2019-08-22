@@ -16,15 +16,14 @@ function saveMacros(macros) {
 
 function addMacro(m, r, macros) {
 	/*
-        function trim(s) {
-            if(s[0] == '"' && s[s.length - 1] == '"') {
-                return s.slice(1, -1)
-            }
-            else {
-                return s
-            }
+    function trim(s) {
+        if(s[0] == '"' && s[s.length - 1] == '"') {
+            return s.slice(1, -1)
+        } else {
+            return s
         }
-        */
+    }
+    */
 	console.log('Adding macro: ' + m + ' => ' + r)
 	macros[m] = r
 	saveMacros(macros)
