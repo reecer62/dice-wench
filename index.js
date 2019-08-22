@@ -32,6 +32,7 @@ function saveMacros() {
 }
 
 function addMacro(m, r) {
+	/*
 	function trim(s) {
 		if(s[0] == '"' && s[s.length - 1] == '"') {
 			return s.slice(1, -1)
@@ -40,6 +41,7 @@ function addMacro(m, r) {
 			return s
 		}
 	}
+	*/
 	console.log('Adding macro: ' + m + ' => ' + r)
 	macros[m] = r
 	saveMacros()
@@ -106,9 +108,9 @@ bot.on('message', msg => {
 			const effect = bs()
 			if(args != null && args.length > 0) {
 				if(args[0] == 'secret') {
-msg.author.createDM().then((dm) => {
-					dm.send('Effect: ' + effect)
-				})
+					msg.author.createDM().then((dm) => {
+						dm.send('Effect: ' + effect)
+					})
 				}
 			}
 			else {

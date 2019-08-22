@@ -23,5 +23,8 @@
   "homepage": "https://github.com/reecer62/dnd-assistant#readme",
   "dependencies": {
     "discord.js": "^11.5.1"
+  },
+  "devDependencies": {
+    "jsdoc": "^3.6.3"
   }
 }

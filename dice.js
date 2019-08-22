@@ -11,7 +11,7 @@ function rollD(n, k) {
 	return rolls
 }
 
-function roll(dstring) {
+function rollDice(dstring) {
 	const dice = dstring.split('+')
 	console.log('dice is: ' + dice)
 	const roll = {}
@@ -41,4 +41,4 @@ function roll(dstring) {
 	return roll
 }
 
-module.exports = roll
+module.exports = rollDice
