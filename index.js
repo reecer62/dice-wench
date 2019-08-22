@@ -1,6 +1,7 @@
 const Discord = require('discord.js');
 const auth = require('./auth.json');
 const dice = require('./dice.js')
+const bs = require("./bullshit.js")
 
 const fs = require('fs');
 
@@ -92,7 +93,17 @@ bot.on('message', msg => {
             } catch(err) {
                 msg.channel.send("Error: " + err)
             }
-
+        } else if(text.startsWith("bullshit",1)) {
+            let args = scanCommand(text)
+            let effect = bs()
+            if(args != null && args.length > 0) {
+                if(args[0] == "secret")
+                    msg.author.createDM().then((dm) => {
+                        dm.send("Effect: " + effect)
+                    })
+            } else {
+            msg.channel.send("Effect: " + effect)
+            }
         }
     }
 	console.log(msg.channel.name)
