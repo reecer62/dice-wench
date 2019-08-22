@@ -1,7 +1,7 @@
 const Discord = require('discord.js')
-const auth = require('./auth.json')
-const dice = require('./dice.js')
-const bs = require('./bullshit.js')
+const auth = require('./auth')
+const dice = require('./dice')
+const bs = require('./bullshit')
 const macro = require('./macros')
 
 const bot = new Discord.Client()
