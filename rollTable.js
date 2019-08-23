@@ -5,10 +5,8 @@ const { execSync } = require('child_process')
  *
  * @param {String} fileName - name of file to get a random line from
  */
-function bullshit(fileName) {
-	const bs = execSync(`py bullshit.py ${fileName}`)
-	console.log('BS: ' + bs)
-	return bs
+function rollTable(fileName) {
+	return execSync(`py rollTable.py ${fileName}`)
 }
 
-module.exports = bullshit
+module.exports = rollTable

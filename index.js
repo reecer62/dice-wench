@@ -1,7 +1,7 @@
 const Discord = require('discord.js')
 const auth = require('./auth')
 const dice = require('./dice')
-const bs = require('./bullshit')
+const rollTable = require('./rollTable')
 const macro = require('./macros')
 
 const bot = new Discord.Client()
@@ -67,7 +67,7 @@ bot.on('message', msg => {
 		}
 		break
 	case 'bullshit':
-		const effect = bs('NLRMEv2.txt')
+		const effect = rollTable('NLRMEv2.txt')
 		if(args != null && args.length > 0) {
 			if(args[0] == 'secret') {
 				msg.author.createDM().then((dm) => {
@@ -82,8 +82,8 @@ bot.on('message', msg => {
 		msg.channel.send(`Unrecognized command \`${command}\``)
 	}
 
-	console.log(msg.channel.name)
-	console.log(msg.content)
+	// console.log(msg.channel.name)
+	// console.log(msg.content)
 	msg.channel.send(macro.macroSub(msg.content, macros))
 })
 
