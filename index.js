@@ -95,7 +95,7 @@ bot.on('message', msg => {
 		}
 		break
 	case 'bullshit':
-		effect = rollTable('NLRMEv2.txt')
+		effect = rollTable('tables/NLRMEv2.txt')
 		if (args !== null && args.includes('secret')) {
 			sendDirect(msg, `Effect: ${effect}`)
 		} else {
@@ -105,9 +105,9 @@ bot.on('message', msg => {
 	case 'madness':
 		if (args !== null) {
 			if (args.includes('short')) {
-				effect = rollTable('short-madness.txt')
+				effect = rollTable('tables/short-madness.txt')
 			} else if (args.includes('long')) {
-				effect = rollTable('long-madness.txt')
+				effect = rollTable('tables/long-madness.txt')
 			} else {
 				return
 			}
