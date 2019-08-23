@@ -7,6 +7,7 @@ const macro = require('./macros')
 const bot = new Discord.Client()
 
 let macros
+let effect
 
 // Removes the !whatever from the front
 // For example, if I call scanCommand(!def reece 'this macro')
@@ -29,6 +30,16 @@ function parseCommand(text) {
 	}
 }
 
+function sendDirect(message, source) {
+	source.author.createDM().then((dm) => {
+		dm.send(message)
+	})
+}
+
+function sendChannel(message, source) {
+	source.channel.send(message)
+}
+
 bot.on('message', msg => {
 	if(msg.author.id == bot.user.id) {
 		return
@@ -37,6 +48,7 @@ bot.on('message', msg => {
 	const text = msg.content
 	const command = parseCommand(text)
 	const args = scanCommand(text)
+	console.log(args)
 
 	switch(command) {
 	case 'def':
@@ -67,7 +79,7 @@ bot.on('message', msg => {
 		}
 		break
 	case 'bullshit':
-		const effect = rollTable('NLRMEv2.txt')
+		effect = rollTable('NLRMEv2.txt')
 		if(args != null && args.length > 0) {
 			if(args[0] == 'secret') {
 				msg.author.createDM().then((dm) => {
@@ -76,6 +88,24 @@ bot.on('message', msg => {
 			}
 		} else {
 			msg.channel.send('Effect: ' + effect)
+		}
+		break
+	case 'madness':
+		if (args !== null) {
+			// Check which madness table to roll for
+			if (args.includes('short')) {
+				effect = rollTable('short-madness.txt')
+			} else if (args.includes('long')) {
+				effect = rollTable('long-madness.txt')
+			} else {
+				return
+			}
+			// Send a DM with madness effect if secret, otherwise send to channel
+			if (args.includes('secret')) {
+				sendDirect(`Effect: ${effect}`, msg)
+			} else {
+				sendChannel(`Effect: ${effect}`, msg)
+			}
 		}
 		break
 	default:
