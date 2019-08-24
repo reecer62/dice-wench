@@ -149,9 +149,23 @@ bot.on('message', msg => {
         msg.channel.send("-" + quoteget.author)
         break
     case 'item':
-        archive.randomItem().then((item) => {
-            msg.channel.send(item)
-        })
+            if(args !== null && args.length > 0) {
+                archive.specificItem(args.join(' ')).then((item) => {
+                     fmt = archive.formatItem(item)
+                     msg.channel.send("**"+fmt.name+"**")
+                     for(let i = 0; i < fmt.text.length; ++i) {
+                         msg.channel.send(fmt.text[i])
+                     }
+                })
+            } else {
+                 archive.randomItem().then((item) => {
+                     fmt = archive.formatItem(item)
+                     msg.channel.send("**"+fmt.name+"**")
+                     for(let i = 0; i < fmt.text.length; ++i) {
+                         msg.channel.send(fmt.text[i])
+                     }
+                 })
+            }
         break
 	default:
 		msg.channel.send(`Unrecognized command \`${command}\``)
