@@ -3,11 +3,13 @@ const auth = require('./auth')
 const dice = require('./dice')
 const rollTable = require('./rollTable')
 const macro = require('./macros')
+const quote = require('./quotes')
 
 const bot = new Discord.Client()
 
 let macros
 let effect
+let quotes
 
 /**
  * Gets the words from the text delimited by spaces (but still respecting quotes (but not escaped quotes)) and returns the arguments
@@ -125,6 +127,30 @@ bot.on('message', msg => {
 			})
 		}
 		break
+    case 'quoteadd':
+        if (args.length == 2) {
+            let ret = quote.addQuote(args.join(' '),quotes)
+            if(ret) {
+                msg.channel.send("Quote added!")
+            } else {
+                msg.channel.send("Could not add quote: format error")
+            }
+        }
+        break
+    case 'quote':
+        let s = ""
+        if(args !== null) {
+            s = args.join(' ')
+        }
+        let quoteget = "No quotes found with that pattern"
+        if(s.startsWith("author:")) {
+            quoteget = quote.searchQuote(s.slice(7),true,quotes)
+        } else {
+            quoteget = quote.searchQuote(s,false,quotes)
+        }
+        msg.channel.send("> " + quoteget.text)
+        msg.channel.send("-" + quoteget.author)
+        break
 	default:
 		msg.channel.send(`Unrecognized command \`${command}\``)
 	}
@@ -141,7 +167,9 @@ bot.on('message', msg => {
 bot.on('ready', () => {
 	console.log('Connected')
 	macros = require('./macros.json')
+    quotes = require('./quotes.json')
 	console.log('Loaded macros: ' + JSON.stringify(macros))
+    console.log('Loaded quotes')
 })
 
 bot.login(auth.token)
