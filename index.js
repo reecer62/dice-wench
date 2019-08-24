@@ -4,6 +4,7 @@ const dice = require('./dice')
 const rollTable = require('./rollTable')
 const macro = require('./macros')
 const quote = require('./quotes')
+const archive = require('./archive')
 
 const bot = new Discord.Client()
 
@@ -146,6 +147,11 @@ bot.on('message', msg => {
         }
         msg.channel.send("> " + quoteget.text)
         msg.channel.send("-" + quoteget.author)
+        break
+    case 'item':
+        archive.randomItem().then((item) => {
+            msg.channel.send(item)
+        })
         break
 	default:
 		msg.channel.send(`Unrecognized command \`${command}\``)
