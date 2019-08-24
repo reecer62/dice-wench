@@ -6,7 +6,7 @@ const { execSync } = require('child_process')
  * @param {String} fileName - name of file to get a random line from
  */
 function rollTable(fileName) {
-	return execSync(`py rollTable.py ${fileName}`)
+	return execSync(`python rollTable.py ${fileName}`)
 }
 
 module.exports = rollTable

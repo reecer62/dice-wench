@@ -10,7 +10,7 @@ let macros
 let effect
 
 /**
- * Gets the words from the text delimited by spaces and returns the arguments
+ * Gets the words from the text delimited by spaces (but still respecting quotes (but not escaped quotes)) and returns the arguments
  *
  * @param {String} text - message content
  */
@@ -60,11 +60,15 @@ bot.on('message', msg => {
 	if(msg.author.id === bot.user.id) {
 		return
 	}
+    if(msg.content[0] != "!") {
+        return
+    }
 
-	const text = msg.content
+	const text = macro.macroSub(msg.content,macros)
+    console.log("Macros: " + msg.content + " => " + text)
 	const command = parseCommand(text)
 	const args = parseArgs(text)
-	console.log(args)
+	console.log("args: " + args)
 
 	switch(command) {
 	case 'def':
@@ -124,7 +128,7 @@ bot.on('message', msg => {
 
 	// console.log(msg.channel.name)
 	// console.log(msg.content)
-	msg.channel.send(macro.macroSub(text, macros))
+	msg.channel.send(text)
 })
 
 /**

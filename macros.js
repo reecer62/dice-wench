@@ -14,7 +14,6 @@ function saveMacros(macros) {
 }
 
 function addMacro(m, r, macros) {
-	/*
     function trim(s) {
         if(s[0] == '"' && s[s.length - 1] == '"') {
             return s.slice(1, -1)
@@ -22,9 +21,8 @@ function addMacro(m, r, macros) {
             return s
         }
     }
-    */
-	console.log('Adding macro: ' + m + ' => ' + r)
-	macros[m] = r
+	console.log('Adding macro: ' + trim(m) + ' => ' + trim(r))
+	macros[trim(m)] = trim(r)
 	saveMacros(macros)
 }
 
@@ -47,9 +45,9 @@ function undef(macro, macros) {
  */
 function macroSub(text, macros) {
 	for (const k in macros) {
-		// console.log('Key: ' + k)
-		// console.log('Value: ' + macros[k])
-		text = text.replace(k, macros[k])
+		console.log('Key: ' + k)
+		console.log('Value: ' + macros[k])
+		text = text.replace(new RegExp(k,"g"), macros[k])
 	}
 	return text
 }
