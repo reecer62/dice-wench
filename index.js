@@ -91,14 +91,10 @@ bot.on('message', msg => {
 		}
 		break
 	case 'roll':
-		try {
-			const result = dice(args.join(' '))
-			const out = result.sum + result.rolls.reduce((a, n) => a + n, 0)
-			msg.channel.send(JSON.stringify(result))
-			msg.channel.send(`You rolled ${out}`)
-		} catch(err) {
-			msg.channel.send(`Error: ${err}`)
-		}
+		dice.parseExpr(args.join(' ')).then(parse => {
+			let rolls = dice.roll(parse.value)
+			msg.channel.send(`${dice.explain(rolls)} = ${dice.total(rolls)}`)
+		}, err => msg.channel.send(`Error: ${err}`))
 		break
 	case 'bullshit':
 		rollTable('tables/NLRMEv2.txt').then(effect => {
