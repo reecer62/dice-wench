@@ -11,10 +11,8 @@ const parseTrace = msg => string => {
 	return Promise.resolve({rest: string})
 }
 
-const parseTrim = string => {
-    console.log("String: " + string)
-    return Promise.resolve({rest: string.trimLeft()})
-}
+const parseTrim = string => Promise.resolve({rest: string.trimLeft()})
+
 const parseIntRe = /^(\d+)(.*)/
 const parseInt = string => new Promise((res, rej) => {
 	const matches = parseIntRe.exec(string)
@@ -100,8 +98,17 @@ const parseRollProps = string => parseIterDie(string)
 const parseConst = string => parseInt(string)
 	.then(parse => ({value: {constant: parse.value}, rest: parse.rest}))
 
+const parseParenthesized = string => parseLiteral("(")(string)
+	.then(parse => parseExpr(parse.rest))
+	.then(parse => parseTrim(parse.rest)
+		.then(parse2 => parseLiteral(")")(parse2.rest)
+			.catch(() => Promise.reject(`Missing closing parenthesis in ${string}?`))
+		)
+		.then(parse2 => ({value: parse.value, rest: parse2.rest}))
+	)
+
 const parseFactors = parseSeq(
-	string => parseTrim(string).then(parse => parseAlt(parseRollProps, parseConst)(parse.rest)),
+	string => parseTrim(string).then(parse => parseAlt(parseParenthesized, parseRollProps, parseConst)(parse.rest)),
 	string => parseTrim(string).then(parse => parseAlt(parseLiteral('*'), parseLiteral('/'), parseLiteral('%'))(parse.rest)),
 )
 
@@ -117,11 +124,11 @@ const roll = val => {
 		return roll(val.value)
 	if(Array.isArray(val))
 		return val.map(el => addProps(el, {elem: roll(el.elem)}))
-	if(val.die) {
+	if(val.die !== undefined) {
 		let iters = 1, lowest = 1
 		if(val.iter) iters = val.iter
 		if(val.reroll) lowest = val.reroll + 1
-		if(lowest > val.die) throw `Reroll ${lowest} invalid for ${val.die} sided dice`
+		if(lowest > val.die) throw `Lowest value ${lowest} invalid for ${val.die} sided dice`
 		let rolls = Array(iters).fill().map(() => rollDie(lowest, val.die)).sort((a, b) => a - b)
 		let lost = []
 		if(val.drop) {
@@ -140,8 +147,11 @@ const roll = val => {
 const explain = val => {
 	if(val.value)
 		return explain(val.value)
-	if(Array.isArray(val))
-		return val.map(explain).join(" ")
+	if(Array.isArray(val)) {
+		if(val.length == 1)
+			return explain(val[0])
+		return `(${val.map(explain).join(" ")})`
+	}
 	if(val.elem) {
 		let exp = explain(val.elem)
 		if(val.join)
@@ -149,7 +159,7 @@ const explain = val => {
 		else
 			return exp
 	}
-	if(val.die) {
+	if(val.die !== undefined) {
 		let iters = 1
 		if(val.iter) iters = val.iter
 		let res = iters == 1 ? `d${val.die}` : `${iters}d${val.die}`
@@ -164,7 +174,7 @@ const explain = val => {
 		}
 		return res
 	}
-	if(val.constant)
+	if(val.constant !== undefined)
 		return `${val.constant}`
 	return "(not sure how to explain this!)"
 }
@@ -188,9 +198,17 @@ const total = val => {
 	}
 	if(val.rolls)
 		return val.rolls.reduce((a, b) => a + b, 0)
-	if(val.constant)
+	if(val.constant !== undefined)
 		return val.constant
 }
+
+const test = string => parseExpr(string)
+	.then(parse => {
+		console.log(parse);
+		const result = roll(parse.value);
+		console.log(explain(result));
+		console.log(total(result));
+	})
 
 module.exports = {
 	addProps: addProps,
@@ -208,4 +226,5 @@ module.exports = {
 	roll: roll,
 	total: total,
 	explain: explain,
+	test: test,
 }
