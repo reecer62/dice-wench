@@ -95,27 +95,30 @@ bot.on('message', msg => {
 		}
 		break
 	case 'bullshit':
-		effect = rollTable('tables/NLRMEv2.txt')
-		if (args !== null && args.includes('secret')) {
-			sendDirect(msg, `Effect: ${effect}`)
-		} else {
-			msg.channel.send(`Effect: ${effect}`)
-		}
-		break
-	case 'madness':
-		if (args !== null) {
-			if (args.includes('short')) {
-				effect = rollTable('tables/short-madness.txt')
-			} else if (args.includes('long')) {
-				effect = rollTable('tables/long-madness.txt')
-			} else {
-				return
-			}
-			if (args.includes('secret')) {
+		rollTable('tables/NLRMEv2.txt').then(effect => {
+			if (args !== null && args.includes('secret')) {
 				sendDirect(msg, `Effect: ${effect}`)
 			} else {
 				msg.channel.send(`Effect: ${effect}`)
 			}
+		})
+		break
+	case 'madness':
+		if (args !== null) {
+			if (args.includes('short')) {
+				prm = rollTable('tables/short-madness.txt')
+			} else if (args.includes('long')) {
+				prm = rollTable('tables/long-madness.txt')
+			} else {
+				return
+			}
+			prm.then(effect => {
+				if (args.includes('secret')) {
+					sendDirect(msg, `Effect: ${effect}`)
+				} else {
+					msg.channel.send(`Effect: ${effect}`)
+				}
+			})
 		}
 		break
 	default:
