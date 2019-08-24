@@ -16,6 +16,11 @@
     "assistant"
   ],
   "author": "Reece Emero",
+  "contributors": [
+    "Reece Emero",
+    "Josh Gordon",
+    "Graham Northup"
+  ],
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/reecer62/dnd-assistant/issues"
