@@ -5,8 +5,20 @@ const { execSync } = require('child_process')
  *
  * @param {String} fileName - name of file to get a random line from
  */
-function rollTable(fileName) {
-	return execSync(`py rollTable.py ${fileName}`)
+
+function rollTable(filename) {
+	return new Promise((res, rej) => fs.readFile(filename, 'utf8', (err, data) => { if(err) rej(err); else res(data) }))
+	.then(data => {
+		const lines = data.split("\n").filter(s => s.length > 0)
+		let p = 1, n = 1, current = null
+		for(let line of lines) {
+			if(Math.random() < p)
+				current = line
+			n += 1
+			p = 1 / n
+		}
+		return current
+	})
 }
 
 module.exports = rollTable
