@@ -1,6 +1,6 @@
 /* I have two words: sorry, and sorry. */
 
-const rollDie = (min, sides) => Math.floor(Math.random() * (sides - min  - 1)) + min
+const rollDie = (min, sides) => Math.floor(Math.random() * (sides - min + 1)) + min
 
 const addProps = (o, p) => Object.assign(Object.assign({}, o), p)
 
@@ -120,8 +120,8 @@ const roll = val => {
 	if(val.die) {
 		let iters = 1, lowest = 1
 		if(val.iter) iters = val.iter
-		if(val.reroll) lowest = val.reroll
-		if(lowest >= val.die) throw `Reroll ${lowest} invalid for ${val.die} sided dice`
+		if(val.reroll) lowest = val.reroll + 1
+		if(lowest > val.die) throw `Reroll ${lowest} invalid for ${val.die} sided dice`
 		let rolls = Array(iters).fill().map(() => rollDie(lowest, val.die)).sort((a, b) => a - b)
 		let lost = []
 		if(val.drop) {
