@@ -124,7 +124,7 @@ bot.on('message', msg => {
 
 	// console.log(msg.channel.name)
 	// console.log(msg.content)
-	msg.channel.send(macro.macroSub(msg.content, macros))
+	msg.channel.send(macro.macroSub(text, macros))
 })
 
 /**
@@ -133,7 +133,8 @@ bot.on('message', msg => {
  */
 bot.on('ready', () => {
 	console.log('Connected')
-	macros = macro.readMacros()
+	macros = require('./macros.json')
+	console.log('Loaded macros: ' + JSON.stringify(macros))
 })
 
 bot.login(auth.token)

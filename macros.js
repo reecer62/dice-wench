@@ -1,15 +1,14 @@
 const fs = require('fs')
 
-function readMacros() {
-	const macros = require('./macros.json')
-	console.log('Loaded macros: ' + JSON.stringify(macros))
-	return macros
-}
-
+/**
+ * Writes the macros object to a file
+ *
+ * @param {Object} macros - contains the mappings of macro names to dice rolls
+ */
 function saveMacros(macros) {
-	const macrodata = JSON.stringify(macros)
-	fs.writeFile('macros.json', macrodata, (err) => {
-		if (err) console.log('Macro not added: ' + err)
+	const macroData = JSON.stringify(macros)
+	fs.writeFile('macros.json', macroData, (err) => {
+		if (err) console.log(`Macro not added: ${err}`)
 		else console.log('Macros saved!')
 	})
 }
@@ -29,21 +28,32 @@ function addMacro(m, r, macros) {
 	saveMacros(macros)
 }
 
-function undef(m, macros) {
-	delete macros[m]
+/**
+ * Removes a macro from the macros object and saves the change
+ *
+ * @param {String} macro - name of macro to be removed
+ * @param {Object} macros - contains the mappings of macro names to dice rolls
+ */
+function undef(macro, macros) {
+	delete macros[macro]
 	saveMacros(macros)
 }
 
+/**
+ * Substitutes macros for their dice expressions
+ *
+ * @param {String} text - contains the macros to be replaced
+ * @param {Object} macros - contains mappings from macros to dice expressions
+ */
 function macroSub(text, macros) {
 	for (const k in macros) {
-		console.log('Key: ' + k)
-		console.log('Value: ' + macros[k])
+		// console.log('Key: ' + k)
+		// console.log('Value: ' + macros[k])
 		text = text.replace(k, macros[k])
 	}
 	return text
 }
 
-module.exports.readMacros = readMacros
 module.exports.addMacro = addMacro
 module.exports.undef = undef
 module.exports.macroSub = macroSub
