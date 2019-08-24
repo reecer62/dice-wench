@@ -11,8 +11,10 @@ const parseTrace = msg => string => {
 	return Promise.resolve({rest: string})
 }
 
-const parseTrim = string => Promise.resolve({rest: string.trimStart()})
-
+const parseTrim = string => {
+    console.log("String: " + string)
+    return Promise.resolve({rest: string.trimLeft()})
+}
 const parseIntRe = /^(\d+)(.*)/
 const parseInt = string => new Promise((res, rej) => {
 	const matches = parseIntRe.exec(string)
@@ -54,7 +56,7 @@ const parseSeqRecur = (element, joinder, accum) => string =>
 		.then(parse2 => parseSeqRecur(element, joinder, accum.concat({elem: parse.value, join: parse2.value}))(parse2.rest))
 		.catch(() => ({value: accum.concat({elem: parse.value}), rest: parse.rest}))
 	).catch(() => ({value: accum, rest: string}))
-		
+
 const parseSeq = (element, joinder) => parseSeqRecur(element, joinder, [])
 
 const parseAltRecur = (...alts) => string => alts.length > 0 ? alts[0](string).catch(() => parseAltRecur(...alts.slice(1))(string)) : Promise.reject(`No alternative succeeded on ${string}.`)
