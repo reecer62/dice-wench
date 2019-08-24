@@ -1,4 +1,5 @@
 const { execSync } = require('child_process')
+const fs = require('fs')
 
 /**
  * Gets a random line from a file (eg. quotes, bullshit table, madness table)
