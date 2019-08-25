@@ -72,12 +72,7 @@ bot.on('message', msg => {
         return
     }
 
-    let text
-    if(parseCommand(msg.content) != 'undef')
-	    text = macro.macroSub(msg.content,macros)
-    else
-        text = msg.content
-    console.log("Macros: " + msg.content + " => " + text)
+    let text = msg.content
 	const command = parseCommand(text)
 	const args_p = parseArgs(text)
     const args = args_p.args
@@ -105,7 +100,9 @@ bot.on('message', msg => {
 		}
 		break
 	case 'roll':
-		dice.parseExpr(args.join(' ')).then(parse => {
+        let m_args = macro.macroSub(args.join(' '),macros)
+        console.log("m_args: " + m_args)
+		dice.parseExpr(m_args).then(parse => {
 			let rolls = dice.roll(parse.value)
 			msg.channel.send(`${dice.explain(rolls)} = ${dice.total(rolls)}`)
 		}, err => msg.channel.send(`Error: ${err}`))
