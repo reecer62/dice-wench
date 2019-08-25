@@ -18,8 +18,13 @@ let quotes
  * @param {String} text - message content
  */
 function parseArgs(text) {
-	const args = text.split(' ').slice(1).join(' ')
-	return args.match(/(?:[^\s"]+|"[^"]*")+/g)
+	const args_in = text.split(' ').slice(1).join(' ').split("!")
+    let args = args_in[0]
+    let comment = args_in.slice(1).join(' ')
+    return {
+        "args" : args.match(/(?:[^\s"]+|"[^"]*")+/g),
+        "comment" : comment
+    }
 }
 
 /**
@@ -67,19 +72,27 @@ bot.on('message', msg => {
         return
     }
 
-	const text = macro.macroSub(msg.content,macros)
+    let text
+    if(parseCommand(msg.content) != 'undef')
+	    text = macro.macroSub(msg.content,macros)
+    else
+        text = msg.content
     console.log("Macros: " + msg.content + " => " + text)
 	const command = parseCommand(text)
-	const args = parseArgs(text)
+	const args_p = parseArgs(text)
+    const args = args_p.args
+    const comment = args_p.comment
 	console.log("args: " + args)
 
 	switch(command) {
 	case 'def':
 		if(args.length != 2) {
 			msg.channel.send(`Macro definition requires exactly 2 arguments, found ${args.length}!`)
-		} else {
+		} else if(args[0] !== 'undef') {
 			macro.addMacro(args[0], args[1], macros)
-		}
+        } else {
+            msg.channel.send("boi")
+        }
 		break
 	case 'macros':
 		msg.channel.send(JSON.stringify(macros))
@@ -173,7 +186,8 @@ bot.on('message', msg => {
 
 	// console.log(msg.channel.name)
 	// console.log(msg.content)
-	msg.channel.send(text)
+    if(comment.length > 0)
+	    msg.channel.send("Reason: `" + comment + "`")
 })
 
 /**
