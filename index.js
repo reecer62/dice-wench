@@ -9,7 +9,6 @@ const archive = require('./archive')
 const bot = new Discord.Client()
 
 let macros
-let effect
 let quotes
 
 /**
@@ -18,25 +17,20 @@ let quotes
  * @param {String} text - message content
  */
 function parseArgs(text) {
-	const args_in = text.split(' ').slice(1).join(' ').split("!")
-    let args = args_in[0]
-    let comment = args_in.slice(1).join(' ')
-    return {
-        "args" : args.match(/(?:[^\s"]+|"[^"]*")+/g),
-        "comment" : comment
-    }
+	return text.match(/(?:[^\s"]+|"[^"]*")+/g)
 }
 
 /**
- * Gets the command from the text
+ * Splits the message into strings starting with the "!" character
+ * Slices the array of strings to obtain the last string which contains the comment
  *
  * @param {String} text - message content
  */
-function parseCommand(text) {
-	if (text[0] === '!') {
-		return text.slice(1).split(/ +/)[0]
-	} else {
+function parseComment(text) {
+	if (text.indexOf('!') === -1) {
 		return null
+	} else {
+		return text.slice(text.indexOf('!') + 1)
 	}
 }
 
@@ -65,45 +59,60 @@ function sendDirect(source, message) {
  * @param {Message} msg - Discord's Message object
  */
 bot.on('message', msg => {
-	if(msg.author.id === bot.user.id) {
+	// Don't look at messages from the bot
+	if (msg.author.id === bot.user.id) {
 		return
 	}
-    if(msg.content[0] != "!") {
-        return
-    }
 
-    let text = msg.content
-	const command = parseCommand(text)
-	const args_p = parseArgs(text)
-    const args = args_p.args
-    const comment = args_p.comment
-	console.log("args: " + args)
+	// Check if message is a command
+	let text = msg.content
+	if (text.startsWith('!')) {
+		text = text.slice(1)
+	} else if (text.toLowerCase().startsWith('wench, ')) {
+		text = text.slice(7)
+	} else {
+		return
+	}
+	// console.log('TEXT AFTER SLICING: ' + text)
 
-	switch(command) {
+	// Get the command, comment, and args from the message
+	const command = text.split(/ +/)[0]
+	text = text.replace(command, '')
+	// console.log('COMMAND: ' + command)
+	// console.log('TEXT: `' + text + '`')
+	const comment = parseComment(text)
+	text = text.replace('!' + comment, '')
+	// console.log('COMMENT: ' + comment)
+	// console.log('TEXT: `' + text + '`')
+	const args = parseArgs(text)
+	// console.log('ARGS: ' + args)
+	// console.log('TEXT: `' + text + '`')
+
+	switch (command) {
 	case 'def':
-		if(args.length != 2) {
+		if (args.length !== 2) {
 			msg.channel.send(`Macro definition requires exactly 2 arguments, found ${args.length}!`)
-		} else if(args[0] !== 'undef') {
+		} else if (args[0] !== 'undef') {
 			macro.addMacro(args[0], args[1], macros)
-        } else {
-            msg.channel.send("boi")
-        }
+		} else {
+			msg.channel.send('boi')
+		}
 		break
 	case 'macros':
 		msg.channel.send(JSON.stringify(macros))
 		break
 	case 'undef':
-		if(args.length != 1) {
+		if (args.length !== 1) {
 			msg.channel.send(`Undef requires exactly 1 argument, found ${args.length}!'`)
 		} else {
 			macro.undef(args[0], macros)
 		}
 		break
 	case 'roll':
-        let m_args = macro.macroSub(args.join(' '),macros)
-        console.log("m_args: " + m_args)
+		const m_args = macro.macroSub(args.join(' '), macros)
+		// console.log('m_args: ' + m_args)
 		dice.parseExpr(m_args).then(parse => {
-			let rolls = dice.roll(parse.value)
+			const rolls = dice.roll(parse.value)
 			msg.channel.send(`${dice.explain(rolls)} = ${dice.total(rolls)}`)
 		}, err => msg.channel.send(`Error: ${err}`))
 		break
@@ -118,6 +127,7 @@ bot.on('message', msg => {
 		break
 	case 'madness':
 		if (args !== null) {
+			let prm
 			if (args.includes('short')) {
 				prm = rollTable('tables/short-madness.txt')
 			} else if (args.includes('long')) {
@@ -134,57 +144,56 @@ bot.on('message', msg => {
 			})
 		}
 		break
-    case 'quoteadd':
-        if (args.length == 2) {
-            let ret = quote.addQuote(args.join(' '),quotes)
-            if(ret) {
-                msg.channel.send("Quote added!")
-            } else {
-                msg.channel.send("Could not add quote: format error")
-            }
-        }
-        break
-    case 'quote':
-        let s = ""
-        if(args !== null) {
-            s = args.join(' ')
-        }
-        let quoteget = "No quotes found with that pattern"
-        if(s.startsWith("author:")) {
-            quoteget = quote.searchQuote(s.slice(7),true,quotes)
-        } else {
-            quoteget = quote.searchQuote(s,false,quotes)
-        }
-        msg.channel.send("> " + quoteget.text)
-        msg.channel.send("-" + quoteget.author)
-        break
-    case 'item':
-            if(args !== null && args.length > 0) {
-                archive.specificItem(args.join(' ')).then((item) => {
-                     fmt = archive.formatItem(item)
-                     msg.channel.send("**"+fmt.name+"**")
-                     for(let i = 0; i < fmt.text.length; ++i) {
-                         msg.channel.send(fmt.text[i])
-                     }
-                })
-            } else {
-                 archive.randomItem().then((item) => {
-                     fmt = archive.formatItem(item)
-                     msg.channel.send("**"+fmt.name+"**")
-                     for(let i = 0; i < fmt.text.length; ++i) {
-                         msg.channel.send(fmt.text[i])
-                     }
-                 })
-            }
-        break
+	case 'quoteadd':
+		if (args.length === 2) {
+			const ret = quote.addQuote(args.join(' '), quotes)
+			if (ret) {
+				msg.channel.send('Quote added!')
+			} else {
+				msg.channel.send('Could not add quote: format error')
+			}
+		}
+		break
+	case 'quote':
+		let s = ''
+		if (args !== null) {
+			s = args.join(' ')
+		}
+		let quoteget = 'No quotes found with that pattern'
+		if (s.startsWith('author:')) {
+			quoteget = quote.searchQuote(s.slice(7), true, quotes)
+		} else {
+			quoteget = quote.searchQuote(s, false, quotes)
+		}
+		msg.channel.send('> ' + quoteget.text)
+		msg.channel.send('-' + quoteget.author)
+		break
+	case 'item':
+		if (args !== null && args.length > 0) {
+			archive.specificItem(args.join(' ')).then((item) => {
+				const fmt = archive.formatItem(item)
+				msg.channel.send('**' + fmt.name + '**')
+				for (let i = 0; i < fmt.text.length; ++i) {
+					msg.channel.send(fmt.text[i])
+				}
+			})
+		} else {
+			archive.randomItem().then((item) => {
+				const fmt = archive.formatItem(item)
+				msg.channel.send('**' + fmt.name + '**')
+				for (let i = 0; i < fmt.text.length; ++i) {
+					msg.channel.send(fmt.text[i])
+				}
+			})
+		}
+		break
 	default:
 		msg.channel.send(`Unrecognized command \`${command}\``)
 	}
 
-	// console.log(msg.channel.name)
-	// console.log(msg.content)
-    if(comment.length > 0)
-	    msg.channel.send("Reason: `" + comment + "`")
+	if (comment !== null) {
+		msg.channel.send('Reason: `' + comment + '`')
+	}
 })
 
 /**
@@ -194,9 +203,9 @@ bot.on('message', msg => {
 bot.on('ready', () => {
 	console.log('Connected')
 	macros = require('./macros.json')
-    quotes = require('./quotes.json')
-	console.log('Loaded macros: ' + JSON.stringify(macros))
-    console.log('Loaded quotes')
+	quotes = require('./quotes.json')
+	// console.log('Loaded macros: ' + JSON.stringify(macros))
+	// console.log('Loaded quotes: ' + JSON.stringify(quotes))
 })
 
 bot.login(auth.token)
