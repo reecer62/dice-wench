@@ -1,4 +1,3 @@
-const { execSync } = require('child_process')
 const fs = require('fs')
 
 /**
@@ -7,17 +6,18 @@ const fs = require('fs')
  * @param {String} fileName - name of file to get a random line from
  */
 function rollTable(filename) {
-	return new Promise((res, rej) => fs.readFile(filename, 'utf8', (err, data) => { if(err) rej(err); else res(data) }))
-	.then(data => {
-		const lines = data.split("\n").filter(s => s.length > 0)
-		let n = 1, current = null
-		for(let line of lines) {
-			if(Math.random() < 1/n)
-				current = line
-			n += 1
-		}
-		return current
-	})
+	return new Promise((res, rej) => fs.readFile(filename, 'utf8', (err, data) => { if (err) rej(err); else res(data) }))
+		.then(data => {
+			const lines = data.split('\n').filter(s => s.length > 0)
+			let n = 1, current = null
+			for (const line of lines) {
+				if (Math.random() < 1 / n) {
+					current = line
+				}
+				n += 1
+			}
+			return current
+		})
 }
 
 module.exports = rollTable
