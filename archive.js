@@ -2,6 +2,9 @@ const request = require('request')
 
 const root = 'http://dnd.cosi.clarkson.edu/api'
 
+/**
+ * Gets random item from the DnD_Archive api
+ */
 function randomItem() {
 	return new Promise((resolve, reject) => {
 
@@ -20,6 +23,11 @@ function randomItem() {
 	})
 }
 
+/**
+ * Queries the DnD_Archive api for a specific item
+ *
+ * @param {String} name - name of item
+ */
 function specificItem(name) {
 	return new Promise((resolve, reject) => {
 
@@ -38,6 +46,11 @@ function specificItem(name) {
 	})
 }
 
+/**
+ * Parses the item and returns an object containing the item's information
+ *
+ * @param {Object} item - object containing info about the item
+ */
 function formatItem(item) {
 	const name = item['title']
 	console.log(item)
