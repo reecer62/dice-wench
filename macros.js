@@ -13,14 +13,21 @@ function saveMacros(macros) {
 	})
 }
 
+/**
+ * Adds new macro to the macros object and saves it
+ *
+ * @param {String} m - macro alias
+ * @param {String} r - dice expression
+ * @param {Object} macros - contains the mappings of macro names to dice rolls
+ */
 function addMacro(m, r, macros) {
-    function trim(s) {
-        if(s[0] == '"' && s[s.length - 1] == '"') {
-            return s.slice(1, -1)
-        } else {
-            return s
-        }
-    }
+	function trim(s) {
+		if (s[0] === '"' && s[s.length - 1] === '"') {
+			return s.slice(1, -1)
+		} else {
+			return s
+		}
+	}
 	console.log('Adding macro: ' + trim(m) + ' => ' + trim(r))
 	macros[trim(m)] = trim(r)
 	saveMacros(macros)
@@ -47,7 +54,7 @@ function macroSub(text, macros) {
 	for (const k in macros) {
 		console.log('Key: ' + k)
 		console.log('Value: ' + macros[k])
-		text = text.replace(new RegExp(k,"g"), macros[k])
+		text = text.replace(new RegExp(k, 'g'), macros[k])
 	}
 	return text
 }
