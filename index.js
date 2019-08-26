@@ -55,6 +55,9 @@ function sendDirect(source, message) {
  * roll - takes dice expression and performs the operation of rolling dice
  * bullshit - gets a random effect from the Net Libram of Random Magical Effects
  * madness - gets a random effect from either short/long term madness table
+ * quoteadd - adds a quote
+ * quote - retrieves a quote
+ * item - gets an item from DnD_Archive
  *
  * @param {Message} msg - Discord's Message object
  */
@@ -199,6 +202,7 @@ bot.on('message', msg => {
 /**
  * Bot connects and is able to react to information received from Discord
  * Loads the macros
+ * Loads the quotes
  */
 bot.on('ready', () => {
 	console.log('Connected')
