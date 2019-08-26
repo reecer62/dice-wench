@@ -153,7 +153,7 @@ bot.on('message', msg => {
 			if (ret) {
 				msg.channel.send('Quote added!')
 			} else {
-				msg.channel.send('Could not add quote: format error')
+				msg.channel.send('Error: incorrect format!\nFormat: `!quoteadd "<quote text>" -<name>`')
 			}
 		}
 		break
@@ -162,14 +162,17 @@ bot.on('message', msg => {
 		if (args !== null) {
 			s = args.join(' ')
 		}
-		let quoteget = 'No quotes found with that pattern'
+		let quoteget
 		if (s.startsWith('author:')) {
 			quoteget = quote.searchQuote(s.slice(7), true, quotes)
 		} else {
 			quoteget = quote.searchQuote(s, false, quotes)
 		}
-		msg.channel.send('> ' + quoteget.text)
-		msg.channel.send('-' + quoteget.author)
+		if (quoteget !== null) {
+			msg.channel.send(`> ${quoteget.text}\n- ${quoteget.author}`)
+		} else {
+			msg.channel.send('No quotes found with that pattern\nTo search by author, use format: `!quote author:<name>`')
+		}
 		break
 	case 'item':
 		if (args !== null && args.length > 0) {
