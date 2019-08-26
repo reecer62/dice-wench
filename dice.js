@@ -1,6 +1,7 @@
 /* I have two words: sorry, and sorry. */
 
-const rollDie = (min, sides) => Math.floor(Math.random() * (sides - min + 1)) + min
+const rollDie = sides => Math.floor(Math.random() * (sides)) + 1
+const choose = choices => choices[Math.floor(Math.random() * choices.length)]
 
 const addProps = (o, p) => Object.assign(Object.assign({}, o), p)
 
@@ -85,12 +86,61 @@ const parseRollProp = (original, name, ...aliases) => string => parseTrim(string
 
 const parseRollPropChained = (name, ...aliases) => original => parseRollProp(original, name, ...aliases)
 
+const PARSE_TIMES_MAP = {any: "any", a: "any", once: "once", o: "once"}
+const PARSE_KIND_MAP = {upto: "upto", u: "upto", downto: "downto", d: "downto", exactly: "exactly", e: "exactly"}
+const parseReroll = original => string => parseTrim(string)
+	.then(parse => parseAlt(parseLiteral("reroll"), parseLiteral("r"))(parse.rest))
+	.then(parse => parseChain(
+		parseAltChain(
+			o => s => parseTrim(s)
+				.then(parse2 => parseAlt(parseLiteral("any"), parseLiteral("a"), parseLiteral("once"), parseLiteral("o"))(parse2.rest))
+				.then(parse2 => ({value: addProps(o, {times: PARSE_TIMES_MAP[parse2.value]}), rest: parse2.rest})),
+			o => s => parseTrim(s)
+				.then(parse2 => parseAlt(
+					parseLiteral("upto"),
+					parseLiteral("u"),
+					parseLiteral("downto"),
+					parseLiteral("d"),
+					parseLiteral("exactly"),
+					parseLiteral("e"),
+				)(parse2.rest))
+				.then(parse2 => parseTrim(parse2.rest)
+					.then(parse3 => parseInt(parse3.rest))
+					.then(parse3 => ({
+						value: addProps(o, {
+							reroll: o.reroll.concat({
+								times: o.times,
+								value: parse3.value,
+								kind: PARSE_KIND_MAP[parse2.value],
+							}),
+						}),
+						rest: parse3.rest,
+					}))
+				),
+			o => s => parseTrim(s)
+				.then(parse2 => parseInt(parse2.rest))
+				.then(parse2 => ({
+					value: addProps(o, {
+						reroll: o.reroll.concat({
+							times: o.times,
+							value: parse2.value,
+							kind: "exactly",
+						}),
+					}),
+					rest: parse2.rest,
+				})),
+		),
+	{times: "any", reroll: []})(parse.rest))
+	.then(parse => ({value: addProps(original, {
+		reroll: (original.reroll || []).concat(parse.value.reroll),
+	}), rest: parse.rest}))
+
 const parseRollProps = string => parseIterDie(string)
 	.then(parse => parseChain(
 		parseAltChain(
 			parseRollPropChained("keep", "k"),
 			parseRollPropChained("drop", "d"),
-			parseRollPropChained("reroll", "r"),
+			parseReroll,
 		),
 		parse.value,
 	)(parse.rest))
@@ -117,19 +167,72 @@ const parseTerms = parseSeq(
 	string => parseTrim(string).then(parse => parseAlt(parseLiteral('+'), parseLiteral('-'))(parse.rest)),
 )
 
-const parseExpr = parseTerms
+const parseBounds = parseSeq(
+	parseTerms,
+	string => parseTrim(string).then(parse => parseAlt(parseLiteral("min"), parseLiteral("max"))(parse.rest)),
+)
+
+const parseExpr = string => parseTrim(string).then(parse => parseBounds(parse.rest))
+
+const parseRelOp = string => parseTrim(string).then(parse => parseAlt(parseLiteral("<"), parseLiteral("<="), parseLiteral("=="), parseLiteral(">="), parseLiteral(">"))(parse.rest))
+
+const parseToplevel = string => parseInt(string)
+	.then(
+		parse => parseTrim(parse.rest)
+			.then(parse2 => parseAlt(parseLiteral("times"), parseLiteral("t"))(parse2.rest))
+			.then(parse2 => ({value: parse.value, rest: parse2.rest}))
+	)
+	.catch(() => ({value: 1, rest: string}))
+	.then(parse => parseExpr(parse.rest)
+		.then(parse2 => parseRelOp(parse2.rest)
+			.then(parse3 => parseExpr(parse3.rest)
+				.then(parse4 => ({value: {iterations: parse.value, expr: {rel: parse3.value, left: parse2.value, right: parse4.value}}, rest: parse4.rest}))
+			)
+			.catch(() => ({value: {iterations: parse.value, expr: parse2}, rest: parse2.rest}))
+		)
+	)
 
 const roll = val => {
+	if(val.iterations !== undefined) {
+		if(val.iterations == 1)
+			return addProps(val, {expr: roll(val.expr)})
+		return addProps(val, {results: Array(val.iterations).fill().map(() => roll(val.expr))})
+	}
 	if(val.value)
 		return roll(val.value)
 	if(Array.isArray(val))
 		return val.map(el => addProps(el, {elem: roll(el.elem)}))
 	if(val.die !== undefined) {
-		let iters = 1, lowest = 1
+		let rolls = undefined, lowest = 1, iters = 1
 		if(val.iter) iters = val.iter
-		if(val.reroll) lowest = val.reroll + 1
 		if(lowest > val.die) throw `Lowest value ${lowest} invalid for ${val.die} sided dice`
-		let rolls = Array(iters).fill().map(() => rollDie(lowest, val.die)).sort((a, b) => a - b)
+		if(Array.isArray(val.reroll)) {
+			let firstDom = Array(val.die).fill().map((_, i) => i + 1)
+			let nextDom = firstDom.concat()
+			for(let rd of val.reroll) {
+				let filt = undefined
+				switch(rd.kind) {
+					case "exactly":
+						filt = x => x != rd.value
+						break
+					case "upto":
+						filt = x => x > rd.value
+						break
+					case "downto":
+						filt = x => x < rd.value
+						break
+				}
+				firstDom = firstDom.filter(filt)
+				if(rd.times == "any")
+					nextDom = nextDom.filter(filt)
+			}
+			if(firstDom.length == 0) throw `Reroll options "${explain(val)}" give no valid roll choices`
+			rolls = Array(iters).fill().map(
+				() => Math.random() < firstDom.length / val.die ? choose(firstDom) : choose(nextDom)
+			)
+		} else {
+			rolls = Array(iters).fill().map(() => rollDie(val.die)).sort((a, b) => a - b)
+		}
 		let lost = []
 		if(val.drop) {
 			lost = lost.concat(rolls.slice(0, val.drop))
@@ -141,10 +244,17 @@ const roll = val => {
 		}
 		return addProps(val, {rolls: rolls, lost: lost})
 	}
+	if(val.rel)
+		return addProps(val, {left: roll(val.left), right: roll(val.right)})
 	return val
 }
 
 const explain = val => {
+	if(val.iterations !== undefined) {
+		if(val.iterations == 1)
+			return explain(val.expr)
+		return `${val.results.map(explain).join("\n")}`
+	}
 	if(val.value)
 		return explain(val.value)
 	if(Array.isArray(val)) {
@@ -165,7 +275,12 @@ const explain = val => {
 		let res = iters == 1 ? `d${val.die}` : `${iters}d${val.die}`
 		if(val.drop) res += ` drop ${val.drop}`
 		if(val.keep) res += ` keep ${val.keep}`
-		if(val.reroll) res += ` reroll ${val.reroll}`
+		if(Array.isArray(val.reroll) && val.reroll.length > 0) {
+			res += " reroll"
+			for(let rd of val.reroll) {
+				res += ` ${rd.times} ${rd.kind} ${rd.value}`
+			}
+		}
 		if(val.rolls) {
 			res += " ["
 			if(val.lost && val.lost.length > 0)
@@ -176,6 +291,8 @@ const explain = val => {
 	}
 	if(val.constant !== undefined)
 		return `${val.constant}`
+	if(val.rel)
+		return `${explain(val.left)} ${val.rel} ${explain(val.right)} (${total(val) ? "pass" : "fail" })`
 	return "(not sure how to explain this!)"
 }
 
@@ -185,6 +302,16 @@ const BINFUNC_MAP = {
 	['*']: (a, b) => a * b,
 	['/']: (a, b) => a / b,
 	['%']: (a, b) => a % b,
+	["min"]: Math.min,
+	["max"]: Math.max,
+}
+
+const RELOP_MAP = {
+	['<']: (a, b) => a < b,
+	['<=']: (a, b) => a <= b,
+	['==']: (a, b) => a == b,
+	['>=']: (a, b) => a >= b,
+	['>']: (a, b) => a > b,
 }
 
 const total = val => {
@@ -196,13 +323,22 @@ const total = val => {
 		return totals.slice(1)
 			.reduce((a, b) => ({total: a.op(a.total, b.total), op: b.op}), totals[0]).total
 	}
+	if(Array.isArray(val.results)) {
+		if(typeof(total(val.results[0])) == "boolean") {
+			let passes = val.results.map(total).filter(x => x).length
+			return `(${passes} pass${passes != 1 ? "es" : ""}, ${val.results.length - passes} fail${passes != val.results.length - 1 ? "s" : ""})`
+		}
+		return `(${val.results.map(total).reduce((a, b) => a + b, 0)} altogether)`
+	}
 	if(val.rolls)
 		return val.rolls.reduce((a, b) => a + b, 0)
 	if(val.constant !== undefined)
 		return val.constant
+	if(val.rel)
+		return RELOP_MAP[val.rel](total(val.left), total(val.right))
 }
 
-const test = string => parseExpr(string)
+const test = string => parseToplevel(string)
 	.then(parse => {
 		console.log(parse);
 		const result = roll(parse.value);
@@ -223,6 +359,7 @@ module.exports = {
 	parseFactors: parseFactors,
 	parseTerms: parseTerms,
 	parseExpr: parseExpr,
+	parseToplevel: parseToplevel,
 	roll: roll,
 	total: total,
 	explain: explain,

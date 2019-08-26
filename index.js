@@ -91,7 +91,7 @@ bot.on('message', msg => {
 		}
 		break
 	case 'roll':
-		dice.parseExpr(args.join(' ')).then(parse => {
+		dice.parseToplevel(args.join(' ')).then(parse => {
 			let rolls = dice.roll(parse.value)
 			msg.channel.send(`${dice.explain(rolls)} = ${dice.total(rolls)}`)
 		}, err => msg.channel.send(`Error: ${err}`))
