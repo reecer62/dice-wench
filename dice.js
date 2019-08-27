@@ -293,7 +293,7 @@ const explain = val => {
 		return `${val.constant}`
 	if(val.rel)
 		return `${explain(val.left)} ${val.rel} ${explain(val.right)} (${total(val) ? "pass" : "fail" })`
-	return "(i am confused but aroused!)"
+	return "(i am confused and aroused!)"
 }
 
 const BINFUNC_MAP = {
