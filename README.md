@@ -12,5 +12,6 @@ A Discord bot that offers a lot of neat features for your D&D server
   - Export Quotes (as a DM)
 - Support for rolling on specific tables (BS table, madness table, etc)
 - Macros
+- Linear Interpolated item costs 
 
 # Implemented Features
