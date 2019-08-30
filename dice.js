@@ -35,16 +35,6 @@ const parseLiteral = literal => string => new Promise((res, rej) => {
 		rej(`Expected ${literal}, found ${string}`)
 })
 
-/* TODO: dead code
-const parseMaybe = parser => string => parser(string).catch(() => {rest: string})
-
-const parseRepeatRecur = (parser, accum) => string => parser(string)
-	.then(parse => parseRepeatRecur(parser, accum.concat(parse.value))(parse.rest))
-	.catch(() => ({value: accum, rest: string}))
-
-const parseRepeat = parser => parseRepeatRecur(parser, [])
-*/
-
 const parseChain = (parser, init) => string => parser(init)(string)
 	.then(parse => parseChain(parser, parse.value)(parse.rest))
 	.catch(() => ({value: init, rest: string}))
@@ -332,6 +322,8 @@ const total = val => {
 	}
 	if(val.rolls)
 		return val.rolls.reduce((a, b) => a + b, 0)
+	if(val.expr)
+		return total(val.expr)
 	if(val.constant !== undefined)
 		return val.constant
 	if(val.rel)
