@@ -149,13 +149,15 @@ bot.on('message', msg => {
 		}
 		break
 	case 'quoteadd':
-		if (args.length === 2) {
+		if (args !== null && args.length === 2) {
 			const ret = quote.addQuote(args.join(' '), quotes)
 			if (ret) {
 				msg.channel.send('Quote added!')
 			} else {
 				msg.channel.send('Error: incorrect format!\nFormat: `!quoteadd "<quote text>" -<name>`')
 			}
+		} else {
+			msg.channel.send('Error: incorrect format!\nFormat: `!quoteadd "<quote text>" -<name>`')
 		}
 		break
 	case 'quote':
