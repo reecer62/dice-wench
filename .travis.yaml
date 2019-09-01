@@ -6,3 +6,8 @@ os:
 node_js:
   - "10"
   - "12"
+install:
+  - npm install
+cache:
+  directories:
+    - "node_modules"
