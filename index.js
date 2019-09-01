@@ -5,34 +5,13 @@ const rollTable = require('./rollTable')
 const macro = require('./macros')
 const quote = require('./quotes')
 const archive = require('./archive')
+const parseArgs = require('./util/parseArgs')
+const parseComment = require('./util/parseComment')
 
 const bot = new Discord.Client()
 
 let macros
 let quotes
-
-/**
- * Gets the words from the text delimited by spaces (but still respecting quotes (but not escaped quotes)) and returns the arguments
- *
- * @param {String} text - message content
- */
-function parseArgs(text) {
-	return text.match(/(?:[^\s"]+|"[^"]*")+/g)
-}
-
-/**
- * Splits the message into strings starting with the "!" character
- * Slices the array of strings to obtain the last string which contains the comment
- *
- * @param {String} text - message content
- */
-function parseComment(text) {
-	if (text.indexOf('!') === -1) {
-		return null
-	} else {
-		return text.slice(text.indexOf('!') + 1)
-	}
-}
 
 /**
  * Sends a message to the author of the message that called the bot
