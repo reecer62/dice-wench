@@ -6,6 +6,7 @@ const fs = require('fs')
  * @param {String} fileName - name of file to get a random line from
  */
 function rollTable(filename) {
+	// eslint-disable-next-line max-statements-per-line
 	return new Promise((res, rej) => fs.readFile(filename, 'utf8', (err, data) => { if (err) rej(err); else res(data) }))
 		.then(data => {
 			const lines = data.split('\n').filter(s => s.length > 0)

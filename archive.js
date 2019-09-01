@@ -66,8 +66,8 @@ function formatItem(item) {
 		text.push(sections[sec])
 		if (sections[sec].length > 2000) {
 			return {
-				'name' : name,
-				'text' : ['Item is too large', 'Link: http://' + item['link']],
+				'name': name,
+				'text': ['Item is too large', 'Link: http://' + item['link']],
 			}
 		}
 		console.log('sections: ' + JSON.stringify(sections))
@@ -76,8 +76,8 @@ function formatItem(item) {
 	text.push('----------------')
 	text.push('Link: http://' + item['link'])
 	return {
-		'name' : name,
-		'text' : text,
+		'name': name,
+		'text': text,
 	}
 }
 

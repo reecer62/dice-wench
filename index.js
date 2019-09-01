@@ -154,7 +154,7 @@ bot.on('message', msg => {
 			if (ret) {
 				msg.channel.send('Quote added!')
 			} else {
-        msg.channel.send('Error: incorrect format!\nFormat: `!quoteadd "<quote text>" -<name>`')
+				msg.channel.send('Error: incorrect format!\nFormat: `!quoteadd "<quote text>" -<name>`')
 			}
 		}
 		break

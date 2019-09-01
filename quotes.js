@@ -25,8 +25,8 @@ function addQuote(quote, quotes) {
 		return false
 	}
 	quotes.push({
-		'text' : matches[1],
-		'author' : matches[2],
+		'text': matches[1],
+		'author': matches[2],
 	})
 	saveQuotes(quotes)
 	return true
