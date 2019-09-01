@@ -4,6 +4,7 @@ language: node_js
   - node
 
 install:
+  - npm i -g npm
   - npm ci
 
 script:
