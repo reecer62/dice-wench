@@ -52,8 +52,6 @@ bot.on('message', msg => {
 		text = text.slice(1)
 	} else if (text.toLowerCase().startsWith('wench, ')) {
 		text = text.slice(7)
-	} else if (text.toLowerCase().startsWith('bitch, ')) {
-        text = text.slice(7)
 	} else {
 		return
 	}

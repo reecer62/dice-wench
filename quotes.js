@@ -49,23 +49,29 @@ function choice(list) {
  * @param {Array} quotes - list of quotes
  */
 function searchQuote(text, author, quotes) {
-	if (author) {
-		const matches = quotes.filter(q => q.author.includes(text))
-		console.log('Matches: ' + matches)
-		if (matches.length > 0) {
-			return choice(matches)
-		} else {
-			return null
-		}
-	} else {
-		const matches = quotes.filter(q => q.text.includes(text))
-		console.log('Matches: ' + matches)
-		if (matches.length > 0) {
-			return choice(matches)
-		} else {
-			return null
-		}
-	}
+    const regex = RegExp(text)
+    try{
+    	if (author) {
+    		const matches = quotes.filter(q => q.author.match(regex))
+    		console.log('Matches: ' + matches)
+    		if (matches.length > 0) {
+    			return choice(matches)
+    		} else {
+    			return null
+    		}
+    	} else {
+    		const matches = quotes.filter(q => q.text.match(regex) !== null)
+    		console.log('Matches: ' + matches)
+    		if (matches.length > 0) {
+    			return choice(matches)
+    		} else {
+    			return null
+    		}
+    	}
+    } catch(error) {
+        console.log(error)
+        return null
+    }
 }
 
 module.exports.saveQuotes = saveQuotes
