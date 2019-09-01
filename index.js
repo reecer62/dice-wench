@@ -112,9 +112,10 @@ bot.on('message', msg => {
 		}
 		break
 	case 'roll':
+
 		const m_args = macro.macroSub(args.join(' '), macros)
 		// console.log('m_args: ' + m_args)
-		dice.parseExpr(m_args).then(parse => {
+		dice.parseToplevel(m_args).then(parse => {
 			const rolls = dice.roll(parse.value)
 			msg.channel.send(`${dice.explain(rolls)} = ${dice.total(rolls)}`)
 		}, err => msg.channel.send(`Error: ${err}`))
@@ -153,7 +154,7 @@ bot.on('message', msg => {
 			if (ret) {
 				msg.channel.send('Quote added!')
 			} else {
-				msg.channel.send('Error: incorrect format!\nFormat: `!quoteadd "<quote text>" -<name>`')
+        msg.channel.send('Error: incorrect format!\nFormat: `!quoteadd "<quote text>" -<name>`')
 			}
 		}
 		break
