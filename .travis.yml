@@ -4,7 +4,7 @@ os:
   - osx
   - windows
 install:
-  - npm i -g npm
+  - npm i npm
   - npm ci
 node_js:
   - "10"
