@@ -1,4 +1,23 @@
-const fs = require('fs')
+const fs = require('fs-extra')
+
+/**
+ * Makes sure the macros file exists and then reads the data from it
+ *
+ * @param {String} path - string containing the path to the macros JSON file
+ */
+function loadMacros(path) {
+	if (!fs.existsSync(path)) {
+		fs.writeFileSync(path, JSON.stringify({}))
+		console.log(`Created macros file at path ${path} successfully!`)
+		const data = JSON.parse(fs.readFileSync(path).toString())
+		console.log(`Read macros file at path ${path} successfully!`)
+		return data
+	} else {
+		const data = JSON.parse(fs.readFileSync(path).toString())
+		console.log(`Read macros file at path ${path} successfully!`)
+		return data
+	}
+}
 
 /**
  * Writes the macros object to a file
@@ -62,3 +81,4 @@ function macroSub(text, macros) {
 module.exports.addMacro = addMacro
 module.exports.undef = undef
 module.exports.macroSub = macroSub
+module.exports.loadMacros = loadMacros
