@@ -217,8 +217,9 @@ const roll = val => {
 				() => Math.random() < firstDom.length / val.die ? choose(firstDom) : choose(nextDom)
 			)
 		} else {
-			rolls = Array(iters).fill().map(() => rollDie(val.die)).sort((a, b) => a - b)
+			rolls = Array(iters).fill().map(() => rollDie(val.die))
 		}
+		rolls.sort((a, b) => a - b)
 		let lost = []
 		if (val.drop) {
 			lost = lost.concat(rolls.slice(0, val.drop))
