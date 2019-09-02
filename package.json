@@ -3,7 +3,16 @@
   "version": "0.1.0",
   "description": "A bot that offers useful commands to run when playing D&D",
   "main": "index.js",
+  "nyc": {
+    "reporter": [
+      "html",
+      "text",
+      "lcov"
+    ]
+  },
   "scripts": {
+    "codecov": "./node_modules/.bin/codecov",
+    "coverage": "nyc mocha --timeout 10000 test/unit",
     "test": "mocha --timeout 10000 test/unit"
   },
   "repository": {
@@ -32,7 +41,9 @@
     "request": "^2.88.0"
   },
   "devDependencies": {
+    "codecov": "^3.5.0",
     "jsdoc": "^3.6.3",
-    "mocha": "^6.2.0"
+    "mocha": "^6.2.0",
+    "nyc": "^14.1.1"
   }
 }
