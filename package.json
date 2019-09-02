@@ -12,7 +12,7 @@
   },
   "scripts": {
     "codecov": "./node_modules/.bin/codecov",
-    "coverage": "nyc mocha --timeout 10000 test/unit",
+    "coverage": "nyc mocha --timeout 10000 test/unit && codecov",
     "test": "mocha --timeout 10000 test/unit"
   },
   "repository": {
