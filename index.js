@@ -191,10 +191,8 @@ bot.on('message', msg => {
  */
 bot.on('ready', () => {
 	console.log('Connected')
-	macros = require('./macros.json')
-	quotes = require('./quotes.json')
-	// console.log('Loaded macros: ' + JSON.stringify(macros))
-	// console.log('Loaded quotes: ' + JSON.stringify(quotes))
+	macros = macro.loadMacros('./macros.json')
+	quotes = quote.loadQuotes('./quotes.json')
 })
 
 bot.login(auth.token)

@@ -1,4 +1,23 @@
-const fs = require('fs')
+const fs = require('fs-extra')
+
+/**
+ * Makes sure the quotes file exists and then reads the data from it
+ *
+ * @param {String} path - string containing the path to the quotes JSON file
+ */
+function loadQuotes(path) {
+	if (!fs.existsSync(path)) {
+		fs.writeFileSync(path, JSON.stringify([]))
+		console.log(`Created quotes file at path ${path} successfully!`)
+		const data = JSON.parse(fs.readFileSync(path).toString())
+		console.log(`Read quotes file at path ${path} successfully!`)
+		return data
+	} else {
+		const data = JSON.parse(fs.readFileSync(path).toString())
+		console.log(`Read quotes file at path ${path} successfully!`)
+		return data
+	}
+}
 
 /**
  * Saves quotes to json file
@@ -71,3 +90,4 @@ function searchQuote(text, author, quotes) {
 module.exports.saveQuotes = saveQuotes
 module.exports.addQuote = addQuote
 module.exports.searchQuote = searchQuote
+module.exports.loadQuotes = loadQuotes
