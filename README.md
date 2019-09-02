@@ -1,4 +1,5 @@
-[![Build Status](https://travis-ci.com/reecer62/dice-wench.svg?branch=master)](https://travis-ci.com/reecer62/dice-wench)
+[![Build Status](https://travis-ci.org/reecer62/dice-wench.svg?branch=master)](https://travis-ci.org/reecer62/dice-wench)
+[![codecov](https://codecov.io/gh/reecer62/dice-wench/branch/master/graph/badge.svg)](https://codecov.io/gh/reecer62/dice-wench)
 
 # dnd-assistant
 A Discord bot that offers a lot of neat features for your D&D server
