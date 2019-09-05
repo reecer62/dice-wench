@@ -7,7 +7,7 @@ install:
   - npm i npm
   - npm ci
 node_js:
-  - latest
+  - "node"
 script:
   - npm test
   - npm run coverage
