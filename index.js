@@ -7,6 +7,7 @@ const quote = require('./quotes')
 const archive = require('./archive')
 const parseArgs = require('./util/parseArgs')
 const parseComment = require('./util/parseComment')
+const api_lookup = require('./api_lookup')
 
 const bot = new Discord.Client()
 
@@ -174,6 +175,16 @@ bot.on('message', msg => {
 			})
 		}
 		break
+    case 'spell':
+            api_lookup.random_spell().then(s => {
+                let m = "**"+s.name+"**\n"+s.desc
+                if(m.length > 2000) {
+                    msg.channel.send("**"+s.name+"**\nDescription too long")
+                } else {
+                    msg.channel.send(m)
+                }
+            })
+            break
 	default:
 		msg.channel.send(`Unrecognized command \`${command}\``)
 	}
