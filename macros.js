@@ -70,12 +70,17 @@ function undef(macro, macros) {
  * @param {Object} macros - contains mappings from macros to dice expressions
  */
 function macroSub(text, macros) {
+    let original = text
 	for (const k in macros) {
 		console.log('Key: ' + k)
 		console.log('Value: ' + macros[k])
 		text = text.replace(new RegExp(k, 'g'), macros[k])
 	}
-	return text
+    if (text == original) {
+        return text
+    }
+    console.log("Needs another round of expansions")
+	return macroSub(text,macros)
 }
 
 module.exports.addMacro = addMacro
