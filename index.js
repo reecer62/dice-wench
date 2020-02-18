@@ -63,6 +63,7 @@ bot.on('message', msg => {
 
 	// Check if message is a command
 	let text = msg.content
+	text=demojify(text) // replace emojis with the charachters they represent
 	if (text.startsWith('!')) {
 		text = text.slice(1)
 	} else if (text.toLowerCase().startsWith('wench, ')) {
@@ -70,8 +71,6 @@ bot.on('message', msg => {
 	} else {
 		return
 	}
-
-	text=demojify(text) // replace emojis with the charachters they represent
 
 	// Get the command, comment, and args from the message
 	const command = text.split(/ +/)[0]
