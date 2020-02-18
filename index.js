@@ -26,6 +26,20 @@ function sendDirect(source, message) {
 	})
 }
 
+subs=[[":interrobang: ","!?"],[":exclamation: ","!"],[":question: ","?"],[":one: ","1"],[":two: ","2"],[":three: ","3"],[":four: ","4"],[":five: ","5"],[":six: ","6"],[":seven: ","7"],[":eight: ","8"],[":nine: ","9"],[":zero: ","0"],[":o2: ","o"],[":o2: ","O"],[":abcd: ","abcd"],[":new: ","new"],[":free: ","free"],[":atm: ","atm"],[":wc: ","wc"],[":ng: ","ng"],[":up: ","up"],[":cool: ","cool"],[":sos: ","sos"],[":ab: ","ab"],[":vs: ","vs"],[":cl: ","cl"],[":b: ","b"],[":a: ","a"],[":x: ","x"],[":regional_indicator_a: ","a"],[":regional_indicator_b: ","b"],[":regional_indicator_c: ","c"],[":regional_indicator_d: ","d"],[":regional_indicator_e: ","e"],[":regional_indicator_f: ","f"],[":regional_indicator_g: ","g"],[":regional_indicator_h: ","h"],[":regional_indicator_i: ","i"],[":regional_indicator_j: ","j"],[":regional_indicator_k: ","k"],[":regional_indicator_l: ","l"],[":regional_indicator_m: ","m"],[":regional_indicator_n: ","n"],[":regional_indicator_o: ","o"],[":regional_indicator_p: ","p"],[":regional_indicator_q: ","q"],[":regional_indicator_r: ","r"],[":regional_indicator_s: ","s"],[":regional_indicator_t: ","t"],[":regional_indicator_u: ","u"],[":regional_indicator_v: ","v"],[":regional_indicator_w: ","w"],[":regional_indicator_x: ","x"],[":regional_indicator_y: ","y"],[":regional_indicator_z: ","z"],[":regional_indicator_a: ","A"],[":regional_indicator_b: ","B"],[":regional_indicator_c: ","C"],[":regional_indicator_d: ","D"],[":regional_indicator_e: ","E"],[":regional_indicator_f: ","F"],[":regional_indicator_g: ","G"],[":regional_indicator_h: ","H"],[":regional_indicator_i: ","I"],[":regional_indicator_j: ","J"],[":regional_indicator_k: ","K"],[":regional_indicator_l: ","L"],[":regional_indicator_m: ","M"],[":regional_indicator_n: ","N"],[":regional_indicator_o: ","O"],[":regional_indicator_p: ","P"],[":regional_indicator_q: ","Q"],[":regional_indicator_r: ","R"],[":regional_indicator_s: ","S"],[":regional_indicator_t: ","T"],[":regional_indicator_u: ","U"],[":regional_indicator_v: ","V"],[":regional_indicator_w: ","W"],[":regional_indicator_x: ","X"],[":regional_indicator_y: ","Y"],[":regional_indicator_z: ","Z"]]
+function demojify(w){
+	for(i in subs){
+		s=subs[i]
+		l=s[0]
+		r=s[1]
+		w=w.replace(new RegExp(l,'g'),r)
+	}
+	w=w.replace(/   /g,' ')
+	w=w.replace(/^ /g,'')
+	return w
+}
+
+
 /**
  * Bot listens for event in which a message is sent in the channel and reacts to commands
  * Commands:
@@ -56,6 +70,8 @@ bot.on('message', msg => {
 	} else {
 		return
 	}
+
+	text=demojify(text) // replace emojis with the charachters they represent
 
 	// Get the command, comment, and args from the message
 	const command = text.split(/ +/)[0]
