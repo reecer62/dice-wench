@@ -91,8 +91,12 @@ bot.on('message', msg => {
 		}
 		break
 	case 'roll':
-
 		const m_args = macro.macroSub(args.join(' '), macros)
+        if(m_args === "Obama d4") {
+            let roll = Math.ceil(Math.random()*4)
+            msg.channel.send("The Obama d4 says", {files:["ims/"+roll+".jpg"]})
+            break
+        }
 		// console.log('m_args: ' + m_args)
 		dice.parseToplevel(m_args).then(parse => {
 			const rolls = dice.roll(parse.value)
