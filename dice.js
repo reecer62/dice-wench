@@ -43,7 +43,7 @@ const parseSeqRecur = (element, joinder, accum) => string =>
 			.catch(() => ({ value: accum.concat({ elem: parse.value }), rest: parse.rest }))
 		).catch(() => ({ value: accum, rest: string }))
 
-const parseSeq = (element, joinder) => parseSeqRecur(element, joinder, [])
+const parseSeq = (element, joiner) => parseSeqRecur(element, joiner, [])
 
 const parseAltRecur = (...alts) => string => alts.length > 0 ? alts[0](string).catch(() => parseAltRecur(...alts.slice(1))(string)) : Promise.reject(`No alternative succeeded on ${string}.`)
 
@@ -124,11 +124,36 @@ const parseReroll = original => string => parseTrim(string)
 		}), rest: parse.rest,
 	}))
 
+const SELECTION_MAP = { keep: 'keep', k: 'keep', drop: 'drop', d: 'drop'}
+const SELECTION_ENTRIES = ['keep', 'drop', 'k', 'd']
+const DIRECTION_MAP = { best: 'best', b: 'best', worst: 'worst', w: 'worst'}
+const DIRECTION_ENTRIES = ['best', 'worst', 'b', 'w']
+const DEFAULT_FOR_SELECTION = {keep: 'best', drop: 'worst'}
+const parseSelection = original => string => parseTrim(string)
+	.then(parse => parseAlt(...SELECTION_ENTRIES.map(parseLiteral))(parse.rest))
+	.then(parse => parseTrim(parse.rest)
+		.then(parse2 => parseAlt(...DIRECTION_ENTRIES.map(parseLiteral))(parse2.rest)
+			.then(
+				parse3 => ({value: DIRECTION_MAP[parse3.value], rest: parse3.rest}),
+				() => ({value: DEFAULT_FOR_SELECTION[SELECTION_MAP[parse.value]], rest: parse2.rest}),
+			)
+		)
+		.then(parse2 => parseTrim(parse2.rest)
+			.then(parse3 => parseInt(parse3.rest))
+			.then(parse3 => ({value: addProps(original, ({ [SELECTION_MAP[parse.value]]: 
+				(original[SELECTION_MAP[parse.value]] || []).concat({
+					direction: parse2.value,
+					limit: parse3.value,
+				})})),
+				rest: parse3.rest,
+			}))
+		)
+	)
+
 const parseRollProps = string => parseIterDie(string)
 	.then(parse => parseChain(
 		parseAltChain(
-			parseRollPropChained('keep', 'k'),
-			parseRollPropChained('drop', 'd'),
+			parseSelection,
 			parseReroll,
 		),
 		parse.value,
@@ -221,13 +246,23 @@ const roll = val => {
 		}
 		rolls.sort((a, b) => a - b)
 		let lost = []
-		if (val.drop) {
-			lost = lost.concat(rolls.slice(0, val.drop))
-			rolls = rolls.slice(val.drop)
+		for(const drop of (val.drop || [])) {
+			if(drop.direction == 'worst') {
+				lost = lost.concat(rolls.slice(0, drop.limit))
+				rolls = rolls.slice(drop.limit)
+			} else {
+				lost = lost.concat(rolls.slice(-drop.limit))
+				rolls = rolls.slice(0, -drop.limit)
+			}
 		}
-		if (val.keep) {
-			lost = lost.concat(rolls.slice(0, -val.keep))
-			rolls = rolls.slice(-val.keep)
+		for(const keep of (val.keep || [])) {
+			if(keep.direction == 'worst') {
+				lost = lost.concat(rolls.slice(keep.limit))
+				rolls = rolls.slice(0, keep.limit)
+			} else {
+				lost = lost.concat(rolls.slice(0, -keep.limit))
+				rolls = rolls.slice(-keep.limit)
+			}
 		}
 		return addProps(val, { rolls: rolls, lost: lost })
 	}
@@ -254,8 +289,8 @@ const explain = val => {
 		let iters = 1
 		if (val.iter) iters = val.iter
 		let res = iters == 1 ? `d${val.die}` : `${iters}d${val.die}`
-		if (val.drop) res += ` drop ${val.drop}`
-		if (val.keep) res += ` keep ${val.keep}`
+		for(const drop of (val.drop || [])) res += ` drop ${drop.direction} ${drop.limit}`
+		for(const keep of (val.keep || [])) res += ` keep ${keep.direction} ${keep.limit}`
 		if (Array.isArray(val.reroll) && val.reroll.length > 0) {
 			res += ' reroll'
 			for (const rd of val.reroll) {
