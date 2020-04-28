@@ -36,10 +36,10 @@ const parseChain = (parser, init) => string => parser(init)(string)
 	.then(parse => parseChain(parser, parse.value)(parse.rest))
 	.catch(() => ({ value: init, rest: string }))
 
-const parseSeqRecur = (element, joinder, accum) => string =>
+const parseSeqRecur = (element, joiner, accum) => string =>
 	element(string)
-		.then(parse => joinder(parse.rest)
-			.then(parse2 => parseSeqRecur(element, joinder, accum.concat({ elem: parse.value, join: parse2.value }))(parse2.rest))
+		.then(parse => joiner(parse.rest)
+			.then(parse2 => parseSeqRecur(element, joiner, accum.concat({ elem: parse.value, join: parse2.value }))(parse2.rest))
 			.catch(() => ({ value: accum.concat({ elem: parse.value }), rest: parse.rest }))
 		).catch(() => ({ value: accum, rest: string }))
 
@@ -171,8 +171,13 @@ const parseParenthesized = string => parseLiteral('(')(string)
 		.then(parse2 => ({ value: parse.value, rest: parse2.rest }))
 	)
 
-const parseFactors = parseSeq(
+const parseExponentiation = parseSeq(
 	string => parseTrim(string).then(parse => parseAlt(parseParenthesized, parseRollProps, parseConst)(parse.rest)),
+	string => parseTrim(string).then(parse => parseAlt(parseLiteral('**'), parseLiteral('^'), parseLiteral('*^*'))(parse.rest)),
+)
+
+const parseFactors = parseSeq(
+	parseExponentiation,
 	string => parseTrim(string).then(parse => parseAlt(parseLiteral('*'), parseLiteral('/'), parseLiteral('%'))(parse.rest)),
 )
 
@@ -315,8 +320,11 @@ const BINFUNC_MAP = {
 	['*']: (a, b) => a * b,
 	['/']: (a, b) => a / b,
 	['%']: (a, b) => a % b,
-	['min']: Math.min,
-	['max']: Math.max,
+	['min']: Math.max,
+	['max']: Math.min,
+	['**']: Math.pow,
+	['^']: Math.pow,
+	['*^*']: Math.pow,
 }
 
 const RELOP_MAP = {
