@@ -339,6 +339,7 @@ const total = val => {
 	if (Array.isArray(val)) {
 		const totals = val
 			.map(el => ({ total: total(el.elem), op: BINFUNC_MAP[el.join] }))
+		if (totals.length == 0) { return 0 }
 		if (totals.length == 1) { return totals[0].total }
 		return totals.slice(1)
 			.reduce((a, b) => ({ total: a.op(a.total, b.total), op: b.op }), totals[0]).total
