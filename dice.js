@@ -278,7 +278,7 @@ const roll = val => {
 const explain = val => {
 	if (val.iterations !== undefined) {
 		if (val.iterations == 1) { return explain(val.expr) }
-		return `${val.results.map(explain).join('\n')}`
+		return `${val.results.map(sub => `${explain(sub)} ${sub.rel ? '' : `_(=${total(sub)})_`}`).join('\n')}`
 	}
 	if (val.value) { return explain(val.value) }
 	if (Array.isArray(val)) {
@@ -310,7 +310,7 @@ const explain = val => {
 		return res
 	}
 	if (val.constant !== undefined) { return `${val.constant}` }
-	if (val.rel) { return `${explain(val.left)} ${val.rel} ${explain(val.right)} (${total(val) ? 'pass' : 'fail'})` }
+	if (val.rel) { return `${explain(val.left)} ${val.rel} ${explain(val.right)} (${total(val) ? '**pass**' : '_fail_'})` }
 	return '(not sure how to explain this!)'
 }
 
