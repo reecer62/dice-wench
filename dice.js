@@ -57,7 +57,7 @@ const parseDie = string => parseLiteral('d')(string)
 	.then(parse => parseInt(parse.rest))
 	.then(parse => ({ value: { die: parse.value }, rest: parse.rest }))
 
-const parseIterDie = string => parseInt(string)
+const parseIterDie = string => parseAlt(parseInt, parseParenthesized)(string)
 	.then(
 		parse => parseDie(parse.rest)
 			.then(parse2 => ({ value: { iter: parse.value, die: parse2.value.die }, rest: parse2.rest })),
@@ -172,8 +172,8 @@ const parseParenthesized = string => parseLiteral('(')(string)
 	)
 
 const parseExponentiation = parseSeq(
-	string => parseTrim(string).then(parse => parseAlt(parseParenthesized, parseRollProps, parseConst)(parse.rest)),
-	string => parseTrim(string).then(parse => parseAlt(parseLiteral('**'), parseLiteral('^'), parseLiteral('*^*'))(parse.rest)),
+	string => parseTrim(string).then(parse => parseAlt(parseRollProps, parseParenthesized, parseConst)(parse.rest)),
+	string => parseTrim(string).then(parse => parseAlt(parseLiteral('**'), parseLiteral('^'), parseLiteral('*^*'), parseLiteral('.^'))(parse.rest)),
 )
 
 const parseFactors = parseSeq(
@@ -221,7 +221,14 @@ const roll = val => {
 	if (val.die !== undefined) {
 		let rolls = undefined, iters = 1
 		const lowest = 1
-		if (val.iter) iters = val.iter
+		if (val.iter) {
+			if(Array.isArray(val.iter)) {
+				val.itersRoll = roll(val.iter)
+				iters = total(val.itersRoll)
+			} else {
+				iters = val.iter
+			}
+		}
 		if (lowest > val.die) throw `Lowest value ${lowest} invalid for ${val.die} sided dice`
 		if (Array.isArray(val.reroll)) {
 			let firstDom = Array(val.die).fill().map((_, i) => i + 1)
@@ -291,9 +298,14 @@ const explain = val => {
 		else { return exp }
 	}
 	if (val.die !== undefined) {
-		let iters = 1
-		if (val.iter) iters = val.iter
-		let res = iters == 1 ? `d${val.die}` : `${iters}d${val.die}`
+		let res = null
+		if (val.iter) {
+			if(val.itersRoll) {
+				res = `(${explain(val.iter)})[${total(val.itersRoll)}]d${val.die}`
+			} else {
+				res = val.iter == 1 ? `d${val.die}` : `${val.iter}d${val.die}`
+			}
+		}
 		for(const drop of (val.drop || [])) res += ` drop ${drop.direction} ${drop.limit}`
 		for(const keep of (val.keep || [])) res += ` keep ${keep.direction} ${keep.limit}`
 		if (Array.isArray(val.reroll) && val.reroll.length > 0) {
